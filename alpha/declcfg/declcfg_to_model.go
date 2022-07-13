@@ -166,8 +166,7 @@ func ConvertToModel(cfg DeclarativeConfig) (model.Model, error) {
 	}
 
 	if err := mpkgs.Validate(); err != nil {
-		fmt.Println("Joe - ignore errors in validation for testing")
-		//return nil, err
+		return nil, err
 	}
 	mpkgs.Normalize()
 	return mpkgs, nil

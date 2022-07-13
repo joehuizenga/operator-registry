@@ -187,13 +187,9 @@ func (g *DiffGenerator) Run(oldModel, newModel model.Model) (model.Model, error)
 		var outputHasDefault bool
 		outputPkg.DefaultChannel, outputHasDefault = outputPkg.Channels[newPkg.DefaultChannel.Name]
 		if !outputHasDefault {
-			// Create a name-only channel since oldModel contains the channel already.
-			//outputPkg.DefaultChannel = copyChannelNoBundles(newPkg.DefaultChannel, outputPkg)
-
 			// Set the defaultChannel using the priority of a channel when the default got filtered out
 			// If no channels with priority property, fall back to a lexigraphical sort by channelName
 			setDefaultChannel(outputPkg)
-
 		}
 	}
 
@@ -203,6 +199,15 @@ func (g *DiffGenerator) Run(oldModel, newModel model.Model) (model.Model, error)
 type ChannelPriorityPropList []property.Channel
 
 func setDefaultChannel(outputPkg *model.Package) {
+	setChannel := func(chosenChannelName string, criterium string) {
+		for chname, channel := range outputPkg.Channels {
+			if chname == chosenChannelName {
+				outputPkg.DefaultChannel = channel
+				fmt.Printf("Newly assigned default channel from existing channels by %s is %s\n", criterium, chosenChannelName)
+				return
+			}
+		}
+	}
 
 	p := make(ChannelPriorityPropList, len(outputPkg.Channels))
 	i := 0
@@ -215,52 +220,37 @@ func setDefaultChannel(outputPkg *model.Package) {
 				i++
 			}
 		}
-
 	}
 
 	if i > 0 {
 		sort.Slice(p, func(j, k int) bool { return p[j].Priority < p[k].Priority })
 
-		fmt.Println("defaultChannel choices sorted by priority for package: ", outputPkg.Name)
+		fmt.Println("defaultChannel choices sorted by priority for package:", outputPkg.Name)
 		for _, k := range p {
 			fmt.Printf("%v\t%v\n", k.ChannelName, k.Priority)
 		}
 
 		// pick last channel as it is the one with the highest priority
-		choosenChannelName := p[len(p)-1].ChannelName
-		for chname, channel := range outputPkg.Channels {
-			if chname == choosenChannelName {
-				outputPkg.DefaultChannel = channel
-				fmt.Println("newly assigned default channel from existing channels by Priority is ", choosenChannelName)
-				break
-			}
-		}
+		setChannel(p[len(p)-1].ChannelName, "Priority")
 	} else {
-		fmt.Println("No remaining channels in filtered output have the priority property, use lexigraphical sort to choose for package: ", outputPkg.Name)
+		fmt.Println("No remaining channels in filtered output have the priority property, use lexigraphical sort to choose for package:", outputPkg.Name)
 
-		var channelNameArray []string
+		var channelNames []string
 		for _, channel := range outputPkg.Channels {
-			channelNameArray = append(channelNameArray, channel.Name)
+			channelNames = append(channelNames, channel.Name)
 		}
 
-		sort.Slice(channelNameArray, func(i, j int) bool {
-			return channelNameArray[i] < channelNameArray[j]
+		sort.Slice(channelNames, func(i, j int) bool {
+			return channelNames[i] < channelNames[j]
 		})
 
 		fmt.Println("defaultChannel choices sorted by name:")
-		for _, k := range channelNameArray {
+		for _, k := range channelNames {
 			fmt.Printf("%s\n", k)
 		}
 
-		choosenChannelName := channelNameArray[len(channelNameArray)-1]
-		for chname, channel := range outputPkg.Channels {
-			if chname == choosenChannelName {
-				outputPkg.DefaultChannel = channel
-				fmt.Println("newly assigned default channel from existing channels by NAME is ", choosenChannelName)
-				break
-			}
-		}
-
+		// pick last channel name as it is the latest one based on lexigraphical sort results
+		setChannel(channelNames[len(channelNames)-1], "Name")
 	}
 }
 
