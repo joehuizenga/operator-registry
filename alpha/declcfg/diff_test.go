@@ -693,7 +693,7 @@ func TestDiffLatest(t *testing.T) {
 			expCfg: DeclarativeConfig{
 				Packages: []Package{
 					{Schema: schemaPackage, Name: "etcd", DefaultChannel: "stable"},
-					{Schema: schemaPackage, Name: "foo", DefaultChannel: "stable"},
+					{Schema: schemaPackage, Name: "foo", DefaultChannel: "clusterwide"},
 				},
 				Channels: []Channel{
 					{Schema: schemaChannel, Name: "stable", Package: "etcd", Entries: []ChannelEntry{
@@ -1206,7 +1206,7 @@ func TestDiffLatest(t *testing.T) {
 			},
 			expCfg: DeclarativeConfig{
 				Packages: []Package{
-					{Schema: schemaPackage, Name: "foo", DefaultChannel: "alpha"},
+					{Schema: schemaPackage, Name: "foo", DefaultChannel: "stable"},
 				},
 				Channels: []Channel{
 					{Schema: schemaChannel, Name: "stable", Package: "foo", Entries: []ChannelEntry{
@@ -2488,7 +2488,7 @@ func TestDiffHeadsOnly(t *testing.T) {
 			},
 			expCfg: DeclarativeConfig{
 				Packages: []Package{
-					{Schema: schemaPackage, Name: "foo", DefaultChannel: "alpha"},
+					{Schema: schemaPackage, Name: "foo", DefaultChannel: "stable"},
 				},
 				Channels: []Channel{
 					{Schema: schemaChannel, Name: "stable", Package: "foo", Entries: []ChannelEntry{
@@ -2609,7 +2609,7 @@ func TestDiffHeadsOnly(t *testing.T) {
 			},
 			expCfg: DeclarativeConfig{
 				Packages: []Package{
-					{Schema: schemaPackage, Name: "foo", DefaultChannel: "alpha"},
+					{Schema: schemaPackage, Name: "foo", DefaultChannel: "stable"},
 				},
 				Channels: []Channel{
 					{Schema: schemaChannel, Name: "stable", Package: "foo", Entries: []ChannelEntry{
@@ -3049,7 +3049,7 @@ func TestDiffRange(t *testing.T) {
 			expCfg: DeclarativeConfig{
 				Packages: []Package{
 					{Schema: schemaPackage, Name: "etcd", DefaultChannel: "stable"},
-					{Schema: schemaPackage, Name: "foo", DefaultChannel: "stable"},
+					{Schema: schemaPackage, Name: "foo", DefaultChannel: "fast"},
 				},
 				Channels: []Channel{
 					{Schema: schemaChannel, Name: "stable", Package: "etcd", Entries: []ChannelEntry{
@@ -3373,7 +3373,7 @@ func TestDiffRange(t *testing.T) {
 			expCfg: DeclarativeConfig{
 				Packages: []Package{
 					{Schema: schemaPackage, Name: "etcd", DefaultChannel: "stable"},
-					{Schema: schemaPackage, Name: "foo", DefaultChannel: "stable"},
+					{Schema: schemaPackage, Name: "foo", DefaultChannel: "fast"},
 				},
 				Channels: []Channel{
 					{Schema: schemaChannel, Name: "stable", Package: "etcd", Entries: []ChannelEntry{
@@ -3650,13 +3650,13 @@ func TestSetDefaultChannelRange2(t *testing.T) {
 				},
 				Channels: []Channel{
 					{Schema: schemaChannel, Name: "v1.6", Package: "ibm-mq", Entries: []ChannelEntry{
-						{Name: "ibm-mq.v1.6.0"}},
+						{Name: "ibm-mq.v1.6.0", SkipRange: ">=1.0.0 <1.6.0"}},
 						Properties: []property.Property{
 							property.MustBuildChannelPriority("v1.6", 2),
 						},
 					},
 					{Schema: schemaChannel, Name: "v1.7", Package: "ibm-mq", Entries: []ChannelEntry{
-						{Name: "ibm-mq.v1.7.0"}},
+						{Name: "ibm-mq.v1.7.0", SkipRange: ">=1.0.0 <1.7.0"}},
 						Properties: []property.Property{
 							property.MustBuildChannelPriority("v1.7", 3),
 						},
